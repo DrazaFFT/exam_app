@@ -20,6 +20,7 @@ import ApplicationForm  from './pages/ApplicationForm';
 import EditApplication  from './pages/EditApplication';
 import Enrolments       from './pages/Enrolments';
 import Users            from './pages/Users';
+import Profile          from './pages/Profile';
 
 import './App.css';
 
@@ -41,14 +42,16 @@ function Navbar() {
           <Link to="/subjects/new"  className="nav-link">Dodaj predmet</Link>
           <Link to="/enrolments"    className="nav-link">Upravljanje upisima</Link>
           <Link to="/users"         className="nav-link">Korisnici</Link>
+          <Link to="/profile"       className="nav-link">Profil</Link>
         </>
       )}
 
       {token && user?.role === 'student' && (
         <>
-          <Link to="/my-subjects"        className="nav-link">Moji predmeti</Link>
-          <Link to="/applications"       className="nav-link">Prijave</Link>
-          <Link to="/applications/new"   className="nav-link">Nova prijava</Link>
+          <Link to="/my-subjects"       className="nav-link">Moji predmeti</Link>
+          <Link to="/applications"      className="nav-link">Prijave</Link>
+          <Link to="/applications/new"  className="nav-link">Nova prijava</Link>
+          <Link to="/profile"           className="nav-link">Profil</Link>
         </>
       )}
 
@@ -67,81 +70,22 @@ function AppRoutes() {
       <Route path="/login"    element={<Login />} />
       <Route path="/register" element={<Register />} />
 
-      <Route
-        path="/subjects"
-        element={
-          <PrivateRoute>
-            <Subjects />
-          </PrivateRoute>
-        }
-      />
-      <Route
-        path="/subjects/new"
-        element={
-          <PrivateRoute>
-            <SubjectForm />
-          </PrivateRoute>
-        }
-      />
-      <Route
-        path="/subjects/:id/edit"
-        element={
-          <PrivateRoute>
-            <SubjectForm />
-          </PrivateRoute>
-        }
-      />
+      <Route path="/subjects"       element={<PrivateRoute><Subjects/></PrivateRoute>} />
+      <Route path="/subjects/new"   element={<PrivateRoute><SubjectForm/></PrivateRoute>} />
+      <Route path="/subjects/:id/edit"
+             element={<PrivateRoute><SubjectForm/></PrivateRoute>} />
 
-      <Route
-        path="/my-subjects"
-        element={
-          <PrivateRoute>
-            <MySubjects />
-          </PrivateRoute>
-        }
-      />
+      <Route path="/my-subjects"    element={<PrivateRoute><MySubjects/></PrivateRoute>} />
 
-      <Route
-        path="/applications"
-        element={
-          <PrivateRoute>
-            <Applications />
-          </PrivateRoute>
-        }
-      />
-      <Route
-        path="/applications/new"
-        element={
-          <PrivateRoute>
-            <ApplicationForm />
-          </PrivateRoute>
-        }
-      />
-      <Route
-        path="/applications/:id/edit"
-        element={
-          <PrivateRoute>
-            <EditApplication />
-          </PrivateRoute>
-        }
-      />
+      <Route path="/applications"           element={<PrivateRoute><Applications/></PrivateRoute>} />
+      <Route path="/applications/new"       element={<PrivateRoute><ApplicationForm/></PrivateRoute>} />
+      <Route path="/applications/:id/edit"  element={<PrivateRoute><EditApplication/></PrivateRoute>} />
 
-      <Route
-        path="/enrolments"
-        element={
-          <PrivateRoute>
-            <Enrolments />
-          </PrivateRoute>
-        }
-      />
-      <Route
-        path="/users"
-        element={
-          <PrivateRoute>
-            <Users />
-          </PrivateRoute>
-        }
-      />
+      <Route path="/enrolments"   element={<PrivateRoute><Enrolments/></PrivateRoute>} />
+      <Route path="/users"        element={<PrivateRoute><Users/></PrivateRoute>} />
+
+      {/* Profile page */}
+      <Route path="/profile"      element={<PrivateRoute><Profile/></PrivateRoute>} />
     </Routes>
   );
 }
