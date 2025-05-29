@@ -4,55 +4,81 @@ import { useNavigate, useParams } from 'react-router-dom';
 import api from '../api/api';
 
 export default function ApplicationForm() {
-  const { subjectId: paramId } = useParams();
-  const [subjects, setSubjects] = useState([]);
-  const [subjectId, setSubjectId] = useState(paramId || '');
-  const [error, setError] = useState(null);
   const navigate = useNavigate();
+  const { subjectId } = useParams();                // read from URL
+  const [subjects, setSubjects] = useState([]);
+  const [apps, setApps] = useState([]);
+  const [selectedSubject, setSelectedSubject] = useState(subjectId || '');
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    api.get('/my-subjects')
-      .then(res => setSubjects(res.data))
-      .catch(() => setError('Greška pri učitavanju predmeta'));
+    const load = async () => {
+      try {
+        const [mySubsRes, appsRes] = await Promise.all([
+          api.get('/my-subjects'),
+          api.get('/applications')
+        ]);
+        const mySubs = mySubsRes.data;
+        const userApps = appsRes.data;
+        setApps(userApps);
+
+        // filter out already applied by code
+        const appliedCodes = userApps.map(a => a.subject_code);
+        const available = mySubs.filter(s => !appliedCodes.includes(s.code));
+        setSubjects(available);
+      } catch {
+        setError('Greška pri učitavanju podataka');
+      }
+    };
+    load();
   }, []);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!subjectId) {
-      return setError('Molim odaberite predmet');
+  // if URL provided subjectId, pre-select it
+  useEffect(() => {
+    if (subjectId) {
+      setSelectedSubject(subjectId);
     }
+  }, [subjectId]);
+
+  const handleSubmit = async e => {
+    e.preventDefault();
+    setError(null);
     try {
-      await api.post('/applications', { subject_id: subjectId });
+      await api.post('/applications', { subject_id: selectedSubject });
       navigate('/applications');
     } catch (err) {
-      setError(err.response?.data?.error || 'Greška prilikom prijave');
+      if (err.response?.status === 409) {
+        setError('Već ste prijavili ovaj ispit');
+      } else {
+        setError('Greška pri prijavi');
+      }
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} style={{ maxWidth: 400, margin: '2rem auto' }}>
-      <h2>Nova prijava</h2>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      <div style={{ marginBottom: '1rem' }}>
-        <label htmlFor="subject">Predmet:</label><br/>
-        <select
-          id="subject"
-          value={subjectId}
-          onChange={e => setSubjectId(e.target.value)}
-          required
-          style={{ width: '100%', padding: '0.5rem' }}
-        >
-          <option value="">-- odaberite predmet --</option>
-          {subjects.map(s => (
-            <option key={s.id} value={s.id}>
-              {s.code} – {s.name}
-            </option>
-          ))}
-        </select>
-      </div>
-      <button type="submit" style={{ padding: '0.5rem 1rem' }}>
-        Pošalji prijavu
-      </button>
-    </form>
+    <div className="form-card">
+      <h2>Nova prijava ispita</h2>
+      {error && <p style={{ color: 'red', textAlign: 'center' }}>{error}</p>}
+      <form onSubmit={handleSubmit}>
+        <div>
+          <label htmlFor="subject">Predmet</label>
+          <select
+            id="subject"
+            value={selectedSubject}
+            onChange={e => setSelectedSubject(e.target.value)}
+          >
+            <option value="">— odaberite predmet —</option>
+            {subjects.map(s => (
+              <option key={s.id} value={s.id}>
+                {s.code} – {s.name}
+              </option>
+            ))}
+          </select>
+        </div>
+        <button type="submit" disabled={!selectedSubject}>
+          Prijavi ispit
+        </button>
+      </form>
+    </div>
   );
 }

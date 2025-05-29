@@ -79,6 +79,7 @@ function AppRoutes() {
 
       <Route path="/applications"           element={<PrivateRoute><Applications/></PrivateRoute>} />
       <Route path="/applications/new"       element={<PrivateRoute><ApplicationForm/></PrivateRoute>} />
+      <Route path="/applications/new/:subjectId" element={<PrivateRoute><ApplicationForm/></PrivateRoute>} />
       <Route path="/applications/:id/edit"  element={<PrivateRoute><EditApplication/></PrivateRoute>} />
 
       <Route path="/enrolments"   element={<PrivateRoute><Enrolments/></PrivateRoute>} />
