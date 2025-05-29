@@ -40,7 +40,7 @@ export default function Applications() {
           {apps.map(a => (
             <tr key={a.id}>
               <td>{a.id}</td>
-              <td>{a.student}</td>
+              <td>{a.student_name}</td>         {/* ← updated */}
               <td>{a.subject_code}</td>
               <td>{new Date(a.submitted_at).toLocaleString()}</td>
               <td>
